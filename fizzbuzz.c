@@ -41,7 +41,7 @@ int get_line(FILE *file, char *line)
 
 int parse_line(int *fd, int *sd, int *count, char *line)
 {
-    char buf[3];
+    char buf[4];
     int i = 0;
     int buf_iter = 0;
     char single_char;
@@ -61,20 +61,23 @@ int parse_line(int *fd, int *sd, int *count, char *line)
             //printf("%s\n", buf);
             if(space_count == 0)
             {
+                buf[buf_iter] = '\0';
                 *fd = atoi(buf);
                 //printf("%d\n", *fd);
             }
             else if(space_count == 1)
             {
+                buf[buf_iter] = '\0';
                 *sd = atoi(buf);
                 //printf("%d\n", *sd);
             }
             else if(space_count == 2)
             {
+                buf[buf_iter] = '\0';
                 *count = atoi(buf);
                 //printf("%d\n", *count);
             }
-            for(buf_iter = 0; buf_iter < 3; buf_iter++)
+            for(buf_iter = 0; buf_iter < 4; buf_iter++)
             {
                 buf[buf_iter] = '\0';
             }
@@ -109,23 +112,33 @@ void play_game(int fd, int sd, int count)
     for(i = 1; i <= count; i++)
     {
         //printf("%d\n", i);
-        if(i % fd == 0) {
+        //printf("First Divisor: %d\n", fd);
+        if(i % fd == 0)
+        {
             out_line[char_iter] = 'F';
             char_iter++;
-            out_line[char_iter] = ' ';
-            char_iter++;
-        } else if(i % sd == 0) {
+            if(i % sd == 0)
+            {
+                out_line[char_iter] = 'B';
+                char_iter++;
+                out_line[char_iter] = ' ';
+                char_iter++;
+            }
+            else
+            {
+                out_line[char_iter] = ' ';
+                char_iter++;
+            }
+        }
+        else if(i % sd == 0)
+        {
             out_line[char_iter] = 'B';
             char_iter++;
             out_line[char_iter] = ' ';
-            char_iter++;
-        } else if( (i % fd == 0) && (i % sd == 0) ) {
-            out_line[char_iter] = 'F';
-            char_iter++;
-            out_line[char_iter] = 'B';
             char_iter++;
         }
-        else {
+        else
+        {
             char num_var[3];
             sprintf(num_var, "%d", i);
             //printf("Number: %s\n", num_var);
