@@ -36,12 +36,12 @@ int get_line(FILE *file, char *line)
             char_count++;
         }
     }
-    while (ic != EOF && ic != '\n');
+    while (ic != '\n');
 }
 
 int parse_line(int *fd, int *sd, int *count, char *line)
 {
-    char buf[4];
+    char buf[6];
     int i = 0;
     int buf_iter = 0;
     char single_char;
@@ -77,7 +77,7 @@ int parse_line(int *fd, int *sd, int *count, char *line)
                 *count = atoi(buf);
                 //printf("%d\n", *count);
             }
-            for(buf_iter = 0; buf_iter < 4; buf_iter++)
+            for(buf_iter = 0; buf_iter < 6; buf_iter++)
             {
                 buf[buf_iter] = '\0';
             }
@@ -139,7 +139,7 @@ void play_game(int fd, int sd, int count)
         }
         else
         {
-            char num_var[3];
+            char num_var[5];
             sprintf(num_var, "%d", i);
             //printf("Number: %s\n", num_var);
             int j = 0;
@@ -153,6 +153,7 @@ void play_game(int fd, int sd, int count)
             char_iter++;
         }
     }
+    out_line[char_iter] = '\0';
 
     printf("%s\n", out_line);
 }
@@ -171,9 +172,9 @@ int main(int argc, char **argv)
         char *line_buf = NULL;    
         line_buf = (char*)calloc(LINE_LENGTH, sizeof(char));
 
-        int dv1;
-        int dv2;
-        int count;
+        int dv1 = 0;
+        int dv2 = 0;
+        int count = 0;
         
         int get_line_success = 0;
 
@@ -182,6 +183,12 @@ int main(int argc, char **argv)
             get_line_success = get_line(game_file, line_buf);
             if(get_line_success == -1)
                 break;
+
+            dv1 = 0;
+            dv2 = 0;
+            count = 0;
+
+            //printf("Line buf: %s\n", line_buf);
 
             //printf("%s", line_buf);
             parse_line(&dv1, &dv2, &count, line_buf);
