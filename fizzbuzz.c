@@ -2,38 +2,41 @@
 #include <stdlib.h>
 #include <string.h>
 
-char* get_line(FILE *file)
+#define LINE_LENGTH 64
+
+int get_line(FILE *file, char *line)
 {
-    int line_length = 64;
-    char *line_buf = NULL;
+    memset(line, '\0', sizeof(char) * LINE_LENGTH);
     char ic;
     int char_count = 0;
     
     if(file == NULL) {
         exit(1);
     }
-    
-    // Create our buffer and initialize it with empties
-    line_buf = (char*)calloc(line_length, sizeof(char));
 
+    if(line == NULL) {
+        exit(1);
+    }
+    
     // Get ourselves a single character
     do
     {
-        if(char_count == line_length)
+        ic = fgetc(file);
+        if(ic == EOF)
+            return -1;
+
+        if(char_count == LINE_LENGTH)
         {
             fprintf(stderr, "line too long\n");
             exit(1);
         }
         else
         {
-            ic = fgetc(file);
-            line_buf[char_count] = ic;
+            line[char_count] = ic;
             char_count++;
         }
     }
     while (ic != EOF && ic != '\n');
-
-    return line_buf;
 }
 
 int parse_line(int *fd, int *sd, int *count, char *line)
@@ -46,7 +49,7 @@ int parse_line(int *fd, int *sd, int *count, char *line)
     if(line == NULL)
         return 1;
 
-    printf("%s", line);
+    //printf("%s", line);
 
     do
     {
@@ -59,17 +62,17 @@ int parse_line(int *fd, int *sd, int *count, char *line)
             if(space_count == 0)
             {
                 *fd = atoi(buf);
-                printf("%d\n", *fd);
+                //printf("%d\n", *fd);
             }
             else if(space_count == 1)
             {
                 *sd = atoi(buf);
-                printf("%d\n", *sd);
+                //printf("%d\n", *sd);
             }
             else if(space_count == 2)
             {
                 *count = atoi(buf);
-                printf("%d\n", *count);
+                //printf("%d\n", *count);
             }
             for(buf_iter = 0; buf_iter < 3; buf_iter++)
             {
@@ -103,7 +106,7 @@ void play_game(int fd, int sd, int count)
     int i;
     //printf("First divisor: %d, second divisor: %d, count: %d\n",
     //        fd, sd, count);
-    for(i = 0; i < count; i++)
+    for(i = 1; i <= count; i++)
     {
         //printf("%d\n", i);
         if(i % fd == 0) {
@@ -151,26 +154,33 @@ int main(int argc, char **argv)
         game_file = fopen(argv[1], "r"); 
 
         //printf("Opened file\n");
-
-        char *line = NULL;    
+        // Create our buffer and initialize it with empties
+        char *line_buf = NULL;    
+        line_buf = (char*)calloc(LINE_LENGTH, sizeof(char));
 
         int dv1;
         int dv2;
         int count;
+        
+        int get_line_success = 0;
 
         do
         {
-            char *line = get_line(game_file);
-            //printf("%s", line);
-            parse_line(&dv1, &dv2, &count, line);
+            get_line_success = get_line(game_file, line_buf);
+            if(get_line_success == -1)
+                break;
+
+            //printf("%s", line_buf);
+            parse_line(&dv1, &dv2, &count, line_buf);
             play_game(dv1, dv2, count);
-            free(line);
         }
-        while(line != NULL);
+        while(1);
 
         if(game_file != NULL) {
             fclose(game_file);
         }
+
+        free(line_buf);
     }
 
     return 0;
